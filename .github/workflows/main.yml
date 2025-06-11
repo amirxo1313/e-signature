@@ -3,9 +3,9 @@ on:
   push:
     branches: [ main ]
 permissions:
-  contents: write # اجازه نوشتن در مخزن
-  pages: write # اجازه مدیریت GitHub Pages
-  id-token: write # برای احراز هویت
+  contents: write
+  pages: write
+  id-token: write
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,10 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: false # جلوگیری از خطای ساب‌ماژول
+          submodules: false
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4 # نسخه جدیدتر
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }} # استفاده از توکن پیش‌فرض
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./
-          publish_branch: gh-pages # شاخه هدف
+          publish_branch: gh-pages
